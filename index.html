@@ -1,0 +1,137 @@
+<!doctype html>
+<html xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+  <head>
+    <title>JQuery Assignment 1</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="data.js"></script>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      table {
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid black;
+        border-radius: 4px; /* works here */
+        overflow: hidden;
+        width: 60%;
+      }
+
+      table tr th,
+      table tr td {
+        border: 1px solid black;
+        padding: 5px 4px;
+      }
+    </style>
+  
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:xd_Signature msdt:dt="string"></mso:xd_Signature>
+<mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Editor msdt:dt="string">SharePoint App</mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Editor>
+<mso:Order msdt:dt="string">3200.00000000000</mso:Order>
+<mso:xd_ProgID msdt:dt="string"></mso:xd_ProgID>
+<mso:_ExtendedDescription msdt:dt="string"></mso:_ExtendedDescription>
+<mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Author msdt:dt="string">SharePoint App</mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Author>
+<mso:ComplianceAssetId msdt:dt="string"></mso:ComplianceAssetId>
+<mso:TemplateUrl msdt:dt="string"></mso:TemplateUrl>
+<mso:ReferenceId msdt:dt="string"></mso:ReferenceId>
+<mso:ContentTypeId msdt:dt="string">0x0101008F7E6A595F677440AEB4255EBF4A3A1B</mso:ContentTypeId>
+<mso:TriggerFlowInfo msdt:dt="string"></mso:TriggerFlowInfo>
+<mso:_SourceUrl msdt:dt="string"></mso:_SourceUrl>
+<mso:_SharedFileIndex msdt:dt="string"></mso:_SharedFileIndex>
+<mso:TaxCatchAll msdt:dt="string"></mso:TaxCatchAll>
+<mso:MediaServiceImageTags msdt:dt="string"></mso:MediaServiceImageTags>
+<mso:lcf76f155ced4ddcb4097134ff3c332f msdt:dt="string"></mso:lcf76f155ced4ddcb4097134ff3c332f>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
+</head>
+  <body>
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 5%">ID</th>
+            <th style="width: 30%">Name</th>
+            <th>Midterm</th>
+            <th>Final</th>
+            <th>Total</th>
+            <th>Grade</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    <script>
+      $(document).ready(function () {
+
+        function getGrade (total) {
+            if (total >= 80) return "A";
+            if (total >= 70) return "B";
+            if (total >= 60) return "C";
+            if (total >= 50) return "D";
+            return "F";
+        }
+
+        function updateRow(row, student) {
+            const total = student.midterm + student.final;
+
+            row.find(".midterm").text(student.midterm);
+            row.find(".final").text(student.final);
+            row.find(".total").text(total);
+            row.find(".grade").text(getGrade(total));
+        }
+
+        function makeEditable(cell, student, field, row) {
+            if (cell.find("input").length) return;
+            const oldValue = student[field];
+            const input = $("<input>", {
+                type : "number",
+                min : 0,
+                max : 50,
+                value : oldValue
+            });
+            cell.empty().append(input);
+            input.focus().select();
+
+            input.on("keydown", function (e) {
+                if (e.key === "Enter") {
+                    const value = parseInt($(this).val());
+                    if (!isNaN(value) && value >= 0 && value <= 50) {
+                        student[field] = value;
+                    }
+                    updateRow(row, student);
+                }else if (e.key === "Escape") {
+                    cell.text(oldValue);
+                }
+            });
+            input.on("blur", function () {
+                updateRow(row, student);
+            });
+        }
+
+        students.forEach(function (student) {
+            const total = student.midterm + student.final;
+
+            const row = $(`
+                <tr>
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td class="midterm">${student.midterm}</td>
+                    <td class="final">${student.final}</td>
+                    <td class="total">${total}</td>
+                    <td class="grade">${getGrade(total)}</td> 
+                </tr>  
+            `);
+            row .find(".midterm").click(function () {
+                makeEditable($(this), student, "midterm", row);
+            });
+            row .find(".final").click(function () {
+                makeEditable($(this), student, "final", row);
+            });
+            $("#table-body").append(row);
+        });
+      });
+    </script>
+  </body>
+</html>
